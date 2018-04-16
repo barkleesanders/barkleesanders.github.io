@@ -18,7 +18,7 @@ minimal_mistakes_skin    : "sunrise" # "air", "aqua", "contrast", "dark", "dirt"
 locale                   : "en-US"
 title                    : "Esbe"
 title_separator          : "-"
-name                     : "Esbe"
+name                     : "Providing Affordable, Honest and Concise Computer Repair Services To Home Users & Small Businesses"
 description              : "Providing Affordable, Honest and Concise Computer Repair Services To Home Users & Small Businesses."
 url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
@@ -97,7 +97,7 @@ analytics:
 
 # Site Author
 author:
-  name             : "Your Name"
+  name             : "Esbe"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "Providing Affordable, Honest and Concise Computer Repair Services To Home Users & Small Businesses"
   location         : "San Francisco, California"
@@ -108,7 +108,7 @@ author:
   codepen          :
   dribbble         :
   flickr           :
-  facebook         :
+  facebook         : https://www.facebook.com/esbecny/
   foursquare       :
   github           :
   gitlab           :
