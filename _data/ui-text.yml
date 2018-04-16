@@ -27,7 +27,7 @@ en: &DEFAULT_EN
   powered_by                 : "Powered by"
   website_label              : "Website"
   email_label                : "Email"
-  recent_posts               : "Ethics & Integrity
+  recent_posts               : "<center> Ethics & Integrity
 Our The Flat Rate Repair Service Is  $125
 
 That's So Don't You Need Worry About Inflating Repair Costs!
@@ -44,7 +44,7 @@ Humble - We do not perform jobs we cannot do properly.   You will hear us beg yo
 
 Honesty - We don’t lie about your problem to milk you for more money. We never misrepresent what we are doing, such as replacing an external hard drive cable and charging you for data recovery.
 
-Goodwill - When the manufacturer will offer superior service to us. We never let someone pay us for a repair that the manufacturer will perform for free. There are many occasions upon which you will be better off going to the OEM because your device may be covered under warranty or a recall. When we know this to be the case, we’ll suggest you try them."
+Goodwill - When the manufacturer will offer superior service to us. We never let someone pay us for a repair that the manufacturer will perform for free. There are many occasions upon which you will be better off going to the OEM because your device may be covered under warranty or a recall. When we know this to be the case, we’ll suggest you try them." </center>
   undefined_wpm              : "Undefined parameter words_per_minute at _config.yml"
   comment_form_info          : "Your email address will not be published. Required fields are marked"
   comment_form_comment_label : "Comment"
