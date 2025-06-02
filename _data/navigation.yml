@@ -1,12 +1,12 @@
 # main links
 main:
-  - title: "Remote Support"
-    url: https://esbe.screenconnect.com
-  # - title: "About"
-  #   url: https://mmistakes.github.io/minimal-mistakes/about/
-  # - title: "Sample Posts"
-  #   url: /year-archive/
-  # - title: "Sample Collections"
-  #   url: /collection-archive/
-  # - title: "Sitemap"
-  #   url: /sitemap/
+  - title: "Home"
+    url: "/"
+  - title: "Services"
+    url: "/#services"
+  - title: "About"
+    url: "/#about"
+  - title: "Contact"
+    url: "/#contact"
+  - title: "Schedule Appointment"
+    url: "https://cal.com/barkleesanders/remote-it-consulting"
