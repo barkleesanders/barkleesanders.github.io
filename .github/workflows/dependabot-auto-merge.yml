@@ -1,8 +1,8 @@
-name: Auto-merge Dependabot PRs
+name: Auto-merge Dependency PRs
 
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [opened, edited, synchronize, reopened, ready_for_review, labeled]
 
 permissions:
   contents: write
@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   automerge:
-    if: github.actor == 'dependabot[bot]'
+    # Run only for Dependabot or Renovate PRs
+    if: github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Dependabot metadata
@@ -21,23 +22,43 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Check Renovate semver label
+        id: renolabel
+        run: |
+          # Determine if PR has a semver:patch label (Renovate convention)
+          has_patch=$(gh pr view "$PR_URL" --json labels --jq 'any(.labels[].name; startswith("semver:patch"))' || echo false)
+          echo "has_patch=$has_patch" >> "$GITHUB_OUTPUT"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Decide eligibility
+        id: decide
+        run: |
+          is_security='${{ steps.metadata.outputs.is-security-update }}'
+          upd_type='${{ steps.metadata.outputs.update-type }}'
+          reno_patch='${{ steps.renolabel.outputs.has_patch }}'
+          should=false
+          if [ "$is_security" = "true" ]; then should=true; fi
+          if [ "$upd_type" = "version-update:semver-patch" ]; then should=true; fi
+          if [ "$reno_patch" = "true" ]; then should=true; fi
+          echo "should=$should" >> "$GITHUB_OUTPUT"
+
       - name: Approve PR
-        run: gh pr review "$PR_URL" --approve --body "Automated approval for Dependabot"
+        if: steps.decide.outputs.should == 'true' && github.actor == 'dependabot[bot]'
+        run: gh pr review "$PR_URL" --approve --body "Automated approval for dependency patch/security update"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for security updates
-        if: steps.metadata.outputs.is-security-update == 'true'
+      - name: Enable auto-merge for eligible updates
+        if: steps.decide.outputs.should == 'true'
         run: gh pr merge --auto --squash "$PR_URL"
+        continue-on-error: true
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for patch updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: Exit success when not eligible
+        if: steps.decide.outputs.should != 'true'
+        run: echo "PR not eligible for auto-merge (as designed)."
