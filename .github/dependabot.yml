@@ -1,92 +1,46 @@
 version: 2
 updates:
-  # GitHub Actions workflows
   - package-ecosystem: "github-actions"
     directory: "/"
-    schedule:
-      interval: "daily"
+    schedule: { interval: "daily" }
     open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, github-actions]
 
-  # JavaScript / TypeScript (npm)
   - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
+    directory: "/package.json"
+    schedule: { interval: "daily" }
     open-pull-requests-limit: 10
-    ignore:
+    rebase-strategy: auto
+    labels: [dependencies, javascript]
+    ignore: &ignore_major_minor_updates
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    groups:
+      types: { patterns: ["@types/*"] }
+      eslint: { patterns: ["eslint*", "@typescript-eslint/*"] }
+      testing: { patterns: ["jest*", "vitest*", "@testing-library/*"] }
 
-  # Python (pip, requirements*.txt)
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # Go modules
-  - package-ecosystem: "gomod"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-
-  # Dockerfiles
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # Ruby (bundler)
   - package-ecosystem: "bundler"
-    directory: "/"
-    schedule:
-      interval: "daily"
+    directory: "/Gemfile"
+    schedule: { interval: "daily" }
     open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    rebase-strategy: auto
+    labels: [dependencies, ruby]
+    ignore: *ignore_major_minor_updates
 
-  # Java (gradle)
-  - package-ecosystem: "gradle"
-    directory: "/"
-    schedule:
-      interval: "daily"
+  - package-ecosystem: "bundler"
+    directory: "/docs/Gemfile"
+    schedule: { interval: "daily" }
     open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, ruby]
+    ignore: *ignore_major_minor_updates
 
-  # Java (maven)
-  - package-ecosystem: "maven"
-    directory: "/"
-    schedule:
-      interval: "daily"
+  - package-ecosystem: "bundler"
+    directory: "/test/Gemfile"
+    schedule: { interval: "daily" }
     open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # PHP (composer)
-  - package-ecosystem: "composer"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-
-  # .NET (nuget)
-  - package-ecosystem: "nuget"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+    rebase-strategy: auto
+    labels: [dependencies, ruby]
+    ignore: *ignore_major_minor_updates
