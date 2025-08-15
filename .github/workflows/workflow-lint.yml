@@ -1,0 +1,30 @@
+name: Workflow Lint
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - .github/workflows/**
+  push:
+    branches: [main, master]
+    paths:
+      - .github/workflows/**
+
+permissions: { contents: read }
+
+concurrency:
+  group: workflow-lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run actionlint
+        uses: reviewdog/action-actionlint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-check
+          fail_on_error: true
+
