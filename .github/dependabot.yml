@@ -1,46 +1,113 @@
 version: 2
 updates:
+  # GitHub Actions workflows (security + patch handled by workflow)
   - package-ecosystem: "github-actions"
     directory: "/"
-    schedule: { interval: "daily" }
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, github-actions]
 
+  # JavaScript / TypeScript (npm)
   - package-ecosystem: "npm"
-    directory: "/package.json"
-    schedule: { interval: "daily" }
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, javascript]
+    # Anchor for ignoring major/minor; reuse across ecosystems
     ignore: &ignore_major_minor_updates
       - dependency-name: "*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
-      types: { patterns: ["@types/*"] }
-      eslint: { patterns: ["eslint*", "@typescript-eslint/*"] }
-      testing: { patterns: ["jest*", "vitest*", "@testing-library/*"] }
+      types:
+        patterns: ["@types/*"]
+      eslint:
+        patterns: ["eslint*", "@typescript-eslint/*"]
+      testing:
+        patterns: ["jest*", "vitest*", "@testing-library/*"]
 
+  # Python (pip)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, python]
+    ignore: *ignore_major_minor_updates
+    groups:
+      testing:
+        patterns: ["pytest*", "hypothesis*"]
+      linting:
+        patterns: ["mypy", "ruff*"]
+
+  # Go modules
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, go]
+
+  # Dockerfiles
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, docker]
+    ignore: *ignore_major_minor_updates
+
+  # Ruby (bundler)
   - package-ecosystem: "bundler"
-    directory: "/Gemfile"
-    schedule: { interval: "daily" }
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, ruby]
     ignore: *ignore_major_minor_updates
 
-  - package-ecosystem: "bundler"
-    directory: "/docs/Gemfile"
-    schedule: { interval: "daily" }
+  # Java (gradle)
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     rebase-strategy: auto
-    labels: [dependencies, ruby]
+    labels: [dependencies, java]
+
+  # Java (maven)
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, java]
     ignore: *ignore_major_minor_updates
 
-  - package-ecosystem: "bundler"
-    directory: "/test/Gemfile"
-    schedule: { interval: "daily" }
+  # PHP (composer)
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "daily"
     open-pull-requests-limit: 10
     rebase-strategy: auto
-    labels: [dependencies, ruby]
+    labels: [dependencies, php]
+    ignore: *ignore_major_minor_updates
+
+  # .NET (nuget)
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    rebase-strategy: auto
+    labels: [dependencies, dotnet]
     ignore: *ignore_major_minor_updates
