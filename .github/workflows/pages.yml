@@ -10,12 +10,15 @@ jobs:
   build:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_FROZEN: 'true'
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - run: echo "BUNDLE_PATH=$RUNNER_TEMP/bundle" >> "$GITHUB_ENV"
       - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
         with:
           ruby-version: '4.0'
-          bundler-cache: true
+      - run: bundle install
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
