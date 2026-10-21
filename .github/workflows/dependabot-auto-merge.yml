@@ -1,64 +1,32 @@
-name: Auto-merge Dependency PRs
+name: Review Dependabot metadata
 
 on:
   pull_request_target:
-    types: [opened, edited, synchronize, reopened, ready_for_review, labeled]
+    types: [opened, edited, synchronize, reopened, ready_for_review]
 
 permissions:
-  contents: write
-  pull-requests: write
-  checks: read
-  statuses: read
+  contents: read
+  pull-requests: read
 
 jobs:
-  automerge:
-    # Run only for Dependabot or Renovate PRs
-    if: github.actor == 'dependabot[bot]' || github.actor == 'renovate[bot]'
+  metadata:
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
+      # Never check out or execute PR code in this privileged job.
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v2
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3 (Node 24)
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
-      - name: Check Renovate semver label
-        id: renolabel
+      # A master merge publishes this site through GitHub Pages. Dependency
+      # metadata and build checks cannot authorize a production release.
+      - name: Record metadata for release review
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
         run: |
-          # Determine if PR has a semver:patch label (Renovate convention)
-          has_patch=$(gh pr view "$PR_URL" --json labels --jq 'any(.labels[].name; startswith("semver:patch"))' || echo false)
-          echo "has_patch=$has_patch" >> "$GITHUB_OUTPUT"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Decide eligibility
-        id: decide
-        run: |
-          is_security='${{ steps.metadata.outputs.is-security-update }}'
-          upd_type='${{ steps.metadata.outputs.update-type }}'
-          reno_patch='${{ steps.renolabel.outputs.has_patch }}'
-          should=false
-          if [ "$is_security" = "true" ]; then should=true; fi
-          if [ "$upd_type" = "version-update:semver-patch" ]; then should=true; fi
-          if [ "$reno_patch" = "true" ]; then should=true; fi
-          echo "should=$should" >> "$GITHUB_OUTPUT"
-
-      - name: Approve PR
-        if: steps.decide.outputs.should == 'true' && github.actor == 'dependabot[bot]'
-        run: gh pr review "$PR_URL" --approve --body "Automated approval for dependency patch/security update"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge for eligible updates
-        if: steps.decide.outputs.should == 'true'
-        run: gh pr merge --auto --squash "$PR_URL"
-        continue-on-error: true
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Exit success when not eligible
-        if: steps.decide.outputs.should != 'true'
-        run: echo "PR not eligible for auto-merge (as designed)."
+          test -n "$DEPENDENCIES"
+          printf 'Dependencies: %s; update type: %s\n' "$DEPENDENCIES" "${UPDATE_TYPE:-unknown}"
+          echo 'Manual release review is required before merging to the Pages source branch.'

@@ -1,0 +1,56 @@
+name: Publish GitHub Pages
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
+        with:
+          ruby-version: '4.0'
+          bundler-cache: true
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: bundle exec ruby scripts/test-check-site.rb
+      - run: bundle exec bundler-audit check --update
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=low
+      - run: npm run lint
+      - run: npm run build:js
+      - run: node scripts/test-watch-js.mjs
+      - run: git diff --exit-code -- assets/js/main.min.js
+      - run: bundle exec jekyll build --destination /tmp/site --trace
+      - run: bundle exec ruby scripts/check-site.rb /tmp/site --release
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: node scripts/check-readability.mjs /tmp/site /tmp/readability
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: release-readability
+          path: /tmp/readability
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        with:
+          path: /tmp/site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish reviewed artifact
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

@@ -20,9 +20,9 @@ title                    : "Experienced Service Beyond Expectations"
 title_separator          : "-"
 name                     : "Affordable Computer Repair Services for Individuals, Small Businesses, and Government Agencies."
 description              : "Affordable Computer Repair Services for Individuals, Small Businesses, and Government Agencies."
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : "https://barkleesanders.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+repository               : "barkleesanders/barkleesanders.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
@@ -80,7 +80,13 @@ facebook:
   username               : # Add Facebook username here if available (optional)
   app_id                 : # Add Facebook App ID here if available
   publisher              : 1423091711037953 # ESBE Tech Facebook Page ID
-og_image                 : # Open Graph/Twitter default site image
+og_image                 : "/assets/images/social-preview.png"
+og_image_alt             : "ESBE Tech: Experienced Service Beyond Expectations. Computer repair and consulting."
+og_image_width           : 1200
+og_image_height          : 630
+og_image_version         : "20261021"
+favicon                  : "/assets/images/favicon.svg"
+content_security_policy  : "default-src 'self'; script-src 'self' 'unsafe-inline' https://use.fontawesome.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://use.fontawesome.com; object-src 'none'; base-uri 'self'; form-action 'self'"
 # For specifying social profiles
 # - https://developers.google.com/structured-data/customize/social-profiles
 social:
@@ -148,6 +154,12 @@ exclude:
   - CHANGELOG
   - config
   - Gemfile
+  - Gemfile.lock
+  - package-lock.json
+  - biome.json
+  - .artifacts
+  - "*.gemspec"
+  - scripts
   - Gruntfile.js
   - gulpfile.js
   - LICENSE
@@ -189,6 +201,7 @@ kramdown:
 # Sass/SCSS
 sass:
   sass_dir: _sass
+  sourcemap: never
   style: compressed # http://sass-lang.com/documentation/file.SASS_REFERENCE.html#output_style
 
 

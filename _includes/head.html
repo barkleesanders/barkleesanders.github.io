@@ -1,6 +1,13 @@
 <meta charset="utf-8">
+{% if site.content_security_policy %}
+<meta http-equiv="Content-Security-Policy" content="{{ site.content_security_policy | escape }}">
+{% endif %}
 
 {% include seo.html %}
+{% if site.favicon %}
+<link rel="icon" href="{{ site.favicon | relative_url }}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{{ '/assets/images/apple-touch-icon.png' | relative_url }}">
+{% endif %}
 
 <link href="{% if site.atom_feed.path %}{{ site.atom_feed.path }}{% else %}{{ '/feed.xml' | relative_url }}{% endif %}" type="application/atom+xml" rel="alternate" title="{{ site.title }} Feed">
 

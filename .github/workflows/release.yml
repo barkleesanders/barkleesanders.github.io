@@ -1,41 +1,23 @@
 name: Release
-
 on:
   push:
     tags: ['v*.*.*']
-
 permissions:
   contents: write
-
-concurrency:
-  group: release-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  build:
+  package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Build artifact
-        run: |
-          echo "Build your binaries/packages here"
-          mkdir -p dist && echo "example.txt" > dist/example.txt
-      - uses: actions/upload-artifact@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
         with:
-          name: release-artifacts
-          path: dist/**
-          retention-days: 7
-
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: release-artifacts
-          path: dist
-      - name: Create GitHub Release
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
-        run: |
-          gh release create "${GITHUB_REF_NAME}" ./dist/** --generate-notes
-
+          ruby-version: '4.0'
+          bundler-cache: true
+      - run: bundle exec bundler-audit check --update
+      - run: bundle exec jekyll build --destination /tmp/site --trace
+      - run: bundle exec ruby scripts/check-site.rb /tmp/site
+      - run: gem build minimal-mistakes-jekyll.gemspec --output /tmp/minimal-mistakes-jekyll.gem
+      - name: Publish packaged theme
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" /tmp/minimal-mistakes-jekyll.gem --generate-notes
