@@ -20,9 +20,9 @@ title                    : "Experienced Service Beyond Expectations"
 title_separator          : "-"
 name                     : "Affordable Computer Repair Services for Individuals, Small Businesses, and Government Agencies."
 description              : "Affordable Computer Repair Services for Individuals, Small Businesses, and Government Agencies."
-url                      : # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : "https://barkleesanders.github.io"
 baseurl                  : # the subpath of your site, e.g. "/blog"
-repository               : # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
+repository               : "barkleesanders/barkleesanders.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
@@ -148,6 +148,10 @@ exclude:
   - CHANGELOG
   - config
   - Gemfile
+  - Gemfile.lock
+  - package-lock.json
+  - "*.gemspec"
+  - scripts
   - Gruntfile.js
   - gulpfile.js
   - LICENSE

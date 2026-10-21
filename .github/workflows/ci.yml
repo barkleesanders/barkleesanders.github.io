@@ -1,104 +1,47 @@
 name: CI
-
 on:
   push:
-    branches: [main, master]
-    paths-ignore: [docs/**, "**/*.md"]
+    branches: [master]
   pull_request:
-    branches: [main, master]
-    paths-ignore: [docs/**, "**/*.md"]
-
+    branches: [master]
+permissions:
+  contents: read
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.ref }}
   cancel-in-progress: true
-
-permissions: { contents: read }
-
 jobs:
-  node:
-    name: Node Lint & Test
+  ruby:
+    name: Ruby (${{ matrix.ruby }})
     runs-on: ubuntu-latest
-    permissions: { contents: read }
     strategy:
       fail-fast: false
       matrix:
-        node: [18, 20]
+        ruby: ['3.3', '4.0']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
         with:
-          node-version: ${{ matrix.node }}
-          cache: 'npm'
-      - name: Install
-        run: |
-          if [ -f pnpm-lock.yaml ]; then corepack enable && pnpm i --frozen-lockfile
-          elif [ -f yarn.lock ]; then yarn --frozen-lockfile
-          elif [ -f package-lock.json ]; then npm ci
-          else echo "No Node lockfile; skipping install"; fi
-      - name: Lint
-        run: |
-          if [ -f package.json ] && jq -e '.scripts.lint' package.json >/dev/null 2>&1; then npm run lint -s || true; fi
-      - name: Test
-        run: |
-          if [ -f package.json ] && jq -e '.scripts.test' package.json >/dev/null 2>&1; then npm test --silent --if-present; fi
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: node-logs-${{ matrix.node }}
-          path: |
-            **/junit*.xml
-            **/coverage/**
-          retention-days: 5
-
-  python:
-    name: Python Lint & Test
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec bundler-audit check --update
+      - run: bundle exec rake -T
+      - run: gem build minimal-mistakes-jekyll.gemspec --output /tmp/theme.gem
+      - run: bundle exec jekyll build --source test --destination /tmp/theme-site --trace
+      - run: bundle exec ruby scripts/check-site.rb /tmp/theme-site
+      - run: bundle exec jekyll build --destination /tmp/personal-site --trace
+      - run: bundle exec ruby scripts/check-site.rb /tmp/personal-site
+  javascript:
+    name: JavaScript
     runs-on: ubuntu-latest
-    permissions: { contents: read }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          python-version: '3.12'
-          cache: 'pip'
-      - name: Install deps
-        run: |
-          if ls requirements*.txt >/dev/null 2>&1; then pip install -r requirements.txt || true; fi
-      - name: Lint (ruff/mypy)
-        run: |
-          ruff --version >/dev/null 2>&1 || pip install ruff mypy
-          ruff check . || true
-          mypy --install-types --non-interactive || true
-      - name: Test (pytest)
-        run: |
-          if command -v pytest >/dev/null 2>&1; then pytest -q || true; fi
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: python-logs
-          path: ./.pytest_cache
-          retention-days: 5
-
-  go:
-    name: Go Build & Test
-    runs-on: ubuntu-latest
-    permissions: { contents: read }
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.22'
-      - name: Cache Go
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
-      - run: |
-          if [ -f go.mod ]; then go mod download; fi
-      - run: |
-          if [ -f go.mod ]; then go vet ./...; fi
-      - run: |
-          if [ -f go.mod ]; then go test ./... -v -count=1; fi
-
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm audit --audit-level=low
+      - run: npm run build:js
+      - run: node --check assets/js/main.min.js
+      - run: node scripts/test-watch-js.mjs
+      - run: git diff --exit-code -- assets/js/main.min.js
