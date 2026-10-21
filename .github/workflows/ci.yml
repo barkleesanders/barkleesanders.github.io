@@ -23,13 +23,31 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      - run: bundle exec ruby scripts/test-check-site.rb
       - run: bundle exec bundler-audit check --update
       - run: bundle exec rake -T
       - run: gem build minimal-mistakes-jekyll.gemspec --output /tmp/theme.gem
       - run: bundle exec jekyll build --source test --destination /tmp/theme-site --trace
       - run: bundle exec ruby scripts/check-site.rb /tmp/theme-site
       - run: bundle exec jekyll build --destination /tmp/personal-site --trace
-      - run: bundle exec ruby scripts/check-site.rb /tmp/personal-site
+      - run: bundle exec ruby scripts/check-site.rb /tmp/personal-site --release
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        if: matrix.ruby == '4.0'
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+        if: matrix.ruby == '4.0'
+      - run: npx --no-install playwright install --with-deps chromium
+        if: matrix.ruby == '4.0'
+      - run: node scripts/check-readability.mjs /tmp/personal-site /tmp/readability
+        if: matrix.ruby == '4.0'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && matrix.ruby == '4.0'
+        with:
+          name: rendered-readability
+          path: /tmp/readability
+          if-no-files-found: error
   javascript:
     name: JavaScript
     runs-on: ubuntu-latest
@@ -41,6 +59,7 @@ jobs:
           cache: npm
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=low
+      - run: npm run lint
       - run: npm run build:js
       - run: node --check assets/js/main.min.js
       - run: node scripts/test-watch-js.mjs

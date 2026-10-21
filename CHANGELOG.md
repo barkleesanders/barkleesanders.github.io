@@ -1,5 +1,10 @@
 ## Unreleased
 
+### Site release gates (2026-10-21)
+
+* Add project-local lint, rendered HTML validation controls, and browser readability checks to builds, CI, and manual Pages publication.
+* Repair Sunrise link/button contrast and add local social previews, favicons, and a static-host CSP policy.
+
 ### Enhancements
 
 * Update Font Awesome to version `5.0.9`. [#1605](https://github.com/mmistakes/minimal-mistakes/pull/1605)

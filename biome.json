@@ -1,0 +1,33 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+  "root": true,
+  "files": {
+    "includes": [
+      "**/*.{js,mjs,cjs,jsx,ts,tsx,json,jsonc,css}",
+      "!!**/node_modules",
+      "!!**/_site",
+      "!!**/.artifacts",
+      "!!assets/js/vendor",
+      "!!assets/js/lunr",
+      "!!assets/js/plugins/jquery.fitvids.js",
+      "!!assets/js/plugins/jquery.magnific-popup.js",
+      "!!**/*.min.js",
+      "!!package-lock.json"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended"
+    }
+  }
+}

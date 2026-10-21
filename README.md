@@ -16,11 +16,34 @@ This site aims to offer a clear overview of services, pricing, and contact infor
 ## Build and release
 
 Use Ruby 3.3 or newer and Node 22.22 or newer. Run `bundle install`, `npm ci`,
-`npm run build:js`, and `bundle exec jekyll build`. The committed lockfiles and
+`npx --no-install playwright install chromium`, and `npm run build`. This runs
+lint, JavaScript/watcher checks, validator failure controls, the root Jekyll build,
+release metadata/CSP validation, and rendered readability/reflow checks. Browser
+measurements and screenshots are saved under `.artifacts/readability`.
+The committed lockfiles and
 CI checks cover Jekyll 4.4 and the actual root site.
 
-The current legacy GitHub Pages builder uses a different dependency graph.
-Before releasing this migration, switch Pages to GitHub Actions and complete
-the site's release review. The manual Pages workflow builds the locked source
-and uploads the generated site. A successful local build does not verify the
-published site or its visual behavior.
+For the legacy Pages migration, switch the repository's Pages source to GitHub
+Actions after the release review, merge the reviewed branch, and dispatch
+`Publish GitHub Pages` on `master`. That workflow runs the gates on the locked
+source before uploading its artifact. Verify the Pages run and served page after
+publication; a local build alone does not establish live behavior.
+
+## Latest Changes
+
+- Pin Biome and enforce project-local lint in CI, builds, and manual releases.
+- Validate every rendered HTML page and prove missing assets/metadata fail.
+- Add local social previews, public metadata, and a static-host CSP baseline.
+- Check root-page contrast and reflow across viewport, text-scale, and OS themes.
+
+Biome checks all parseable first-party JS/MJS/JSON. Third-party FitVids,
+Magnific Popup, jQuery, Lunr, minified bundles, and lockfiles are excluded.
+The adapted greedy-navigation plugin stays checked. Biome cannot parse Jekyll
+Liquid/frontmatter JavaScript or Sass: Jekyll compiles these during site builds;
+rendered browser checks and bundle syntax checks cover their resulting output.
+No lint rules are disabled to accommodate findings.
+
+The CSP uses a meta element because GitHub Pages does not offer custom response
+headers. It allows existing inline theme scripts/styles and Font Awesome's
+script host; it restricts objects, base URLs, and form targets. Header-only CSP
+directives cannot be enforced by a meta policy.

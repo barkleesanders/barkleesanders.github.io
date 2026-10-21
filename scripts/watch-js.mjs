@@ -11,11 +11,11 @@ function build() {
   }
   running = true;
   const child = spawn('npm', ['run', 'build:js'], { stdio: 'inherit' });
-  child.on('error', error => {
+  child.on('error', (error) => {
     console.error(error);
     process.exit(1);
   });
-  child.on('exit', code => {
+  child.on('exit', (code) => {
     running = false;
     if (code !== 0) console.error(`JavaScript build failed (${code}).`);
     if (pending) {
