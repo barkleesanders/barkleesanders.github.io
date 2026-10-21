@@ -1,4 +1,4 @@
-name: Auto-merge Dependabot patches
+name: Review Dependabot metadata
 
 on:
   pull_request_target:
@@ -6,14 +6,12 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
-  automerge:
+  metadata:
     if: github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       # Never check out or execute PR code in this privileged job.
       - name: Dependabot metadata
@@ -22,18 +20,13 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
-      # Other updates require explicit review. fetch-metadata has no
-      # is-security-update output; do not infer it from labels or PR text.
-      - name: Approve patch updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr review --approve "$PR_URL" --body "Reviewed dependency patch; required checks still apply."
+      # A master merge publishes this site through GitHub Pages. Dependency
+      # metadata and build checks cannot authorize a production release.
+      - name: Record metadata for release review
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Enable auto-merge for patch updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ github.token }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEPENDENCIES: ${{ steps.metadata.outputs.dependency-names }}
+        run: |
+          test -n "$DEPENDENCIES"
+          printf 'Dependencies: %s; update type: %s\n' "$DEPENDENCIES" "${UPDATE_TYPE:-unknown}"
+          echo 'Manual release review is required before merging to the Pages source branch.'

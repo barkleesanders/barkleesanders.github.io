@@ -12,3 +12,15 @@ This site aims to offer a clear overview of services, pricing, and contact infor
 
 *   Jekyll
 *   Minimal Mistakes Theme (modified)
+
+## Build and release
+
+Use Ruby 3.3 or newer and Node 22.22 or newer. Run `bundle install`, `npm ci`,
+`npm run build:js`, and `bundle exec jekyll build`. The committed lockfiles and
+CI checks cover Jekyll 4.4 and the actual root site.
+
+The current legacy GitHub Pages builder uses a different dependency graph.
+Before releasing this migration, switch Pages to GitHub Actions and complete
+the site's release review. The manual Pages workflow builds the locked source
+and uploads the generated site. A successful local build does not verify the
+published site or its visual behavior.
