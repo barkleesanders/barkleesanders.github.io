@@ -13,16 +13,19 @@ jobs:
   ruby:
     name: Ruby (${{ matrix.ruby }})
     runs-on: ubuntu-latest
+    env:
+      BUNDLE_FROZEN: 'true'
     strategy:
       fail-fast: false
       matrix:
         ruby: ['3.3', '4.0']
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - run: echo "BUNDLE_PATH=$RUNNER_TEMP/bundle" >> "$GITHUB_ENV"
       - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
         with:
           ruby-version: ${{ matrix.ruby }}
-          bundler-cache: true
+      - run: bundle install
       - run: bundle exec ruby scripts/test-check-site.rb
       - run: bundle exec bundler-audit check --update
       - run: bundle exec rake -T
@@ -37,6 +40,8 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci --ignore-scripts
+        if: matrix.ruby == '4.0'
+      - run: npm run lint
         if: matrix.ruby == '4.0'
       - run: npx --no-install playwright install --with-deps chromium
         if: matrix.ruby == '4.0'
