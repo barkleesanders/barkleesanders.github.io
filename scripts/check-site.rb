@@ -55,4 +55,12 @@ css = root.join('assets/css/main.css')
 abort 'missing compiled theme CSS' unless css.file? && css.size > 1000
 js = root.join('assets/js/main.min.js')
 abort 'missing JavaScript bundle' unless js.file? && js.size > 1000
+files = Dir.glob(root.join('**/*').to_s, File::FNM_DOTMATCH).select { |path| File.file?(path) }
+maps = files.select { |path| path.downcase.end_with?('.map') }
+abort "public source map artifacts: #{maps.join(', ')}" unless maps.empty?
+bundles = files.select { |path| ['.js', '.css'].include?(File.extname(path).downcase) }
+bundles.each do |path|
+  abort "#{path}: public sourceMappingURL reference" if File.binread(path).include?('sourceMappingURL')
+end
 puts "Rendered #{pages.size} HTML pages; title, main, structured data, CSS and JavaScript present#{release ? '; release metadata and CSP checked' : ''}."
+puts "Checked #{bundles.size} JavaScript/CSS assets; no source map artifacts or references."

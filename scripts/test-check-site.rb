@@ -57,6 +57,18 @@ Dir.mktmpdir('site-validator-') do |root|
     run.call(html, false, "Missing #{asset}")
     File.rename("#{root}/#{asset}.bak", "#{root}/#{asset}")
   end
+  ['assets/css/main.css.map', '.debug.map'].each do |map|
+    File.write("#{root}/#{map}", '{"version":3,"sources":["private.scss"]}')
+    run.call(html, false, "Public source map artifact #{map}")
+    File.delete("#{root}/#{map}")
+  end
+  ['assets/css/main.css', 'assets/js/main.min.js'].each do |asset|
+    original = File.binread("#{root}/#{asset}")
+    File.binwrite("#{root}/#{asset}", original + "\n/*# sourceMappingURL=data:application/json;base64,e30= */")
+    run.call(html, false, "Source map reference in #{asset}")
+    File.binwrite("#{root}/#{asset}", original)
+  end
+  run.call(html, true, 'Restored artifact controls')
   File.write("#{root}/other.html", html.sub('<title>Validator control</title>', ''))
   run.call(html, false, 'Invalid second route')
 end
