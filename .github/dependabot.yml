@@ -8,6 +8,8 @@ updates:
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, github-actions]
+    cooldown:
+      default-days: 7
 
   # JavaScript / TypeScript (npm)
   - package-ecosystem: "npm"
@@ -28,6 +30,8 @@ updates:
         patterns: ["eslint*", "@typescript-eslint/*"]
       testing:
         patterns: ["jest*", "vitest*", "@testing-library/*"]
+    cooldown:
+      default-days: 7
 
   # Python (pip)
   - package-ecosystem: "pip"
@@ -43,6 +47,8 @@ updates:
         patterns: ["pytest*", "hypothesis*"]
       linting:
         patterns: ["mypy", "ruff*"]
+    cooldown:
+      default-days: 7
 
   # Go modules
   - package-ecosystem: "gomod"
@@ -52,6 +58,8 @@ updates:
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, go]
+    cooldown:
+      default-days: 7
 
   # Dockerfiles
   - package-ecosystem: "docker"
@@ -62,6 +70,8 @@ updates:
     rebase-strategy: auto
     labels: [dependencies, docker]
     ignore: *ignore_major_minor_updates
+    cooldown:
+      default-days: 7
 
   # Ruby (bundler)
   - package-ecosystem: "bundler"
@@ -72,6 +82,8 @@ updates:
     rebase-strategy: auto
     labels: [dependencies, ruby]
     ignore: *ignore_major_minor_updates
+    cooldown:
+      default-days: 7
 
   # Java (gradle)
   - package-ecosystem: "gradle"
@@ -81,6 +93,8 @@ updates:
     open-pull-requests-limit: 10
     rebase-strategy: auto
     labels: [dependencies, java]
+    cooldown:
+      default-days: 7
 
   # Java (maven)
   - package-ecosystem: "maven"
@@ -91,6 +105,8 @@ updates:
     rebase-strategy: auto
     labels: [dependencies, java]
     ignore: *ignore_major_minor_updates
+    cooldown:
+      default-days: 7
 
   # PHP (composer)
   - package-ecosystem: "composer"
@@ -101,6 +117,8 @@ updates:
     rebase-strategy: auto
     labels: [dependencies, php]
     ignore: *ignore_major_minor_updates
+    cooldown:
+      default-days: 7
 
   # .NET (nuget)
   - package-ecosystem: "nuget"
@@ -111,3 +129,5 @@ updates:
     rebase-strategy: auto
     labels: [dependencies, dotnet]
     ignore: *ignore_major_minor_updates
+    cooldown:
+      default-days: 7
