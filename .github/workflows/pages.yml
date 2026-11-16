@@ -17,11 +17,11 @@ jobs:
         with:
           persist-credentials: false
       - run: echo "BUNDLE_PATH=$RUNNER_TEMP/bundle" >> "$GITHUB_ENV"
-      - uses: ruby/setup-ruby@b1da4809b005e0178fe08a1d57317bffc00b7b4c # v1
+      - uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1
         with:
           ruby-version: '4.0'
       - run: bundle install
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
           cache: npm
@@ -43,7 +43,7 @@ jobs:
           name: release-readability
           path: /tmp/readability
           if-no-files-found: error
-      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: /tmp/site
   deploy:
@@ -58,4 +58,4 @@ jobs:
     steps:
       - name: Publish reviewed artifact
         id: deployment
-        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
